@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS inout_transactions;
+DROP TABLE IF EXISTS inventory;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS warehouses;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+
+DROP TYPE IF EXISTS transaction_type;
