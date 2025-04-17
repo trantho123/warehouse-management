@@ -1,44 +1,56 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
+	"os/signal"
 
+	"os"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
+	"github.com/trantho123/warehouse-management/api"
+	db "github.com/trantho123/warehouse-management/db/sqlc"
 	"github.com/trantho123/warehouse-management/utils"
 )
 
-func ConnectDB(config *utils.Config) (*sql.DB, error) {
-	// Open database connection
-	db, err := sql.Open("postgres", config.DBSource)
-	if err != nil {
-		return nil, fmt.Errorf("error opening database: %v", err)
-	}
-
-	// Test the connection
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("error connecting to the database: %v", err)
-	}
-
-	return db, nil
-}
+var interruptSignals = []os.Signal{os.Interrupt, os.Kill}
 
 func main() {
 	fmt.Println("Welcome to the Warehouse Management System!")
 
-	// Create database configuration
 	config, err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
-	// Connect to database
-	db, err := ConnectDB(&config)
+	ctx, stop := signal.NotifyContext(context.Background(), interruptSignals...)
+	defer stop()
+
+	connPool, err := ConnectDB(ctx, &config)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
-	defer db.Close()
+	store := db.NewStore(connPool)
 
-	fmt.Println("Successfully connected to database!")
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("Cannot create server", err)
+	}
+	server.Start(config.HTTP_SERVER_ADDRESS)
 
+}
+
+func ConnectDB(ctx context.Context, config *utils.Config) (*pgxpool.Pool, error) {
+
+	connPool, err := pgxpool.New(ctx, config.DBSource)
+	if err != nil {
+		log.Fatal("cannot connect to db:", err)
+	}
+	// Test the connection
+	if err := connPool.Ping(ctx); err != nil {
+		return nil, err
+	}
+
+	return connPool, nil
 }

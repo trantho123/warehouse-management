@@ -2,12 +2,13 @@
 // versions:
 //   sqlc v1.20.0
 
-package database
+package db
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type TransactionType string
@@ -53,13 +54,13 @@ func (ns NullTransactionType) Value() (driver.Value, error) {
 }
 
 type InoutTransaction struct {
-	ID          int32           `json:"id"`
-	WarehouseID sql.NullInt32   `json:"warehouse_id"`
-	ProductID   sql.NullInt32   `json:"product_id"`
-	Quantity    int32           `json:"quantity"`
-	Type        TransactionType `json:"type"`
-	CreatedBy   sql.NullInt32   `json:"created_by"`
-	CreatedAt   sql.NullTime    `json:"created_at"`
+	ID          int32            `json:"id"`
+	WarehouseID pgtype.Int4      `json:"warehouse_id"`
+	ProductID   pgtype.Int4      `json:"product_id"`
+	Quantity    int32            `json:"quantity"`
+	Type        TransactionType  `json:"type"`
+	CreatedBy   pgtype.Int4      `json:"created_by"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
 }
 
 type Inventory struct {
@@ -72,8 +73,8 @@ type Product struct {
 	ID          int32          `json:"id"`
 	Name        string         `json:"name"`
 	Sku         string         `json:"sku"`
-	Description sql.NullString `json:"description"`
-	UnitPrice   string         `json:"unit_price"`
+	Description pgtype.Text    `json:"description"`
+	UnitPrice   pgtype.Numeric `json:"unit_price"`
 }
 
 type Role struct {
@@ -82,17 +83,17 @@ type Role struct {
 }
 
 type User struct {
-	ID        int32         `json:"id"`
-	Username  string        `json:"username"`
-	Email     string        `json:"email"`
-	Password  string        `json:"password"`
-	RoleID    sql.NullInt32 `json:"role_id"`
-	CreatedAt sql.NullTime  `json:"created_at"`
-	UpdatedAt sql.NullTime  `json:"updated_at"`
+	ID        int32            `json:"id"`
+	Username  string           `json:"username"`
+	Email     string           `json:"email"`
+	Password  string           `json:"password"`
+	RoleID    pgtype.Int4      `json:"role_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 }
 
 type Warehouse struct {
-	ID       int32          `json:"id"`
-	Name     string         `json:"name"`
-	Location sql.NullString `json:"location"`
+	ID       int32       `json:"id"`
+	Name     string      `json:"name"`
+	Location pgtype.Text `json:"location"`
 }

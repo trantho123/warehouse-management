@@ -1,28 +1,31 @@
-package database
+package db
 
 import (
-	"database/sql"
+	"context"
 	"log"
 	"os"
 	"testing"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/trantho123/warehouse-management/utils"
 )
 
-var TestQuerier *Queries
+var TestStore Store
 
 func TestMain(m *testing.M) {
 	config, err := utils.LoadConfig("../../")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
-	// Connect to database
-	db, err := sql.Open("postgres", config.DBSource)
+
+	// Connect to database using pgx
+	connPool, err := pgxpool.New(context.Background(), config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
-	TestQuerier = New(db)
+	defer connPool.Close()
+
+	TestStore = NewStore(connPool)
 
 	os.Exit(m.Run())
 }

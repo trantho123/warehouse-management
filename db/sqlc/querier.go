@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.20.0
 
-package database
+package db
 
 import (
 	"context"
@@ -10,12 +10,9 @@ import (
 
 type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
-	DeleteUser(ctx context.Context, id int32) error
 	GetUser(ctx context.Context, id int32) (User, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
-	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)
-	SearchUsers(ctx context.Context) ([]int64, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
