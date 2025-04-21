@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os/signal"
 
 	"os"
 
@@ -24,8 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), interruptSignals...)
-	defer stop()
+	ctx := context.Background()
 
 	connPool, err := ConnectDB(ctx, &config)
 	if err != nil {

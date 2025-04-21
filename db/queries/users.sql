@@ -32,3 +32,6 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: GetUserByNameAndPass :one
+SELECT * FROM users
+WHERE username = $1 AND password = $2 LIMIT 1;
